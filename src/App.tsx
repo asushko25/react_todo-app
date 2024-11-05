@@ -1,3 +1,6 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable jsx-a11y/control-has-associated-label */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { UserWarning } from './UserWarning';
 import { USER_ID, getTodos, deleteTodo, createTodo } from './api/todos';
@@ -7,12 +10,13 @@ import { TodoList } from './components/TodoList';
 import { ErrorItem } from './components/ErrorItem';
 import { FooterItem } from './components/Footer';
 import { updateTodo } from './api/todos';
+import { FilterOptions } from './types/FilterOptions';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState(FilterOptions.All);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -56,8 +60,8 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  const onUpdate = (id: number, updatedStatus: Partial<Todo>) => {
-    return updateTodo({ id, ...updatedStatus })
+  const onUpdate = (id: number, updatedStatus: Todo) => {
+    return updateTodo({ ...updatedStatus, id })
       .then(updatedTodo => {
         setTodos(currentTodos =>
           currentTodos.map(todo => (todo.id === id ? updatedTodo : todo)),
@@ -77,7 +81,9 @@ export const App: React.FC = () => {
     setLoadingIds([...loadingIds, ...todosToUpdate.map(todo => todo.id)]);
 
     Promise.all(
-      todosToUpdate.map(todo => onUpdate(todo.id, { completed: haveActive })),
+      todosToUpdate.map(todo =>
+        onUpdate(todo.id, { ...todo, completed: haveActive }),
+      ),
     ).finally(() => {
       setLoadingIds(prevLoadingIds =>
         prevLoadingIds.filter(
@@ -90,7 +96,7 @@ export const App: React.FC = () => {
   const handleToggleTodo = (todo: Todo) => {
     setLoadingIds([...loadingIds, todo.id]);
 
-    onUpdate(todo.id, { completed: !todo.completed }).finally(() => {
+    onUpdate(todo.id, { ...todo, completed: !todo.completed }).finally(() => {
       setLoadingIds(loadingIds.filter(id => id !== todo.id));
     });
   };
@@ -183,7 +189,12 @@ export const App: React.FC = () => {
       return;
     }
 
-    updateTodo({ id, title: updatedTitle })
+    updateTodo({
+      id,
+      completed: todos.find(todo => todo.id === id)?.completed ?? false,
+      title: updatedTitle,
+      userId: USER_ID,
+    })
       .then(updatedTodo => {
         setTodos(currentTodos =>
           currentTodos.map(todo => (todo.id === id ? updatedTodo : todo)),
@@ -232,7 +243,12 @@ export const App: React.FC = () => {
 
     setLoadingIds(prevLoadingIds => [...prevLoadingIds, id]);
 
-    updateTodo({ id, title: updatedTitle })
+    updateTodo({
+      id,
+      completed: todos.find(todo => todo.id === id)?.completed ?? false,
+      title: updatedTitle,
+      userId: USER_ID,
+    })
       .then(updatedTodo => {
         setTodos(currentTodos =>
           currentTodos.map(todo => (todo.id === id ? updatedTodo : todo)),
@@ -294,7 +310,6 @@ export const App: React.FC = () => {
             filter={filter}
             handleClearCompleted={handleClearCompleted}
             completedTodos={completedTodos}
-            handleToggleTodo={handleToggleTodo}
           />
         )}
       </div>

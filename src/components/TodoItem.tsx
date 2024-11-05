@@ -16,13 +16,10 @@ interface TodoItemProps {
   isEditing: boolean;
   handleToggleTodo: (todo: Todo) => void;
   editingTitle: string;
-  handleUpdateTodo: () => void;
+  handleUpdateTodo: (todoId: number, event: React.FormEvent) => void;
   handleBlur: () => void;
-  isTogglingAll: boolean;
-  isDeleting: boolean;
-  isTogglingTodo: boolean;
   loadingIds: number[];
-  setEditingTodoId: number;
+  setEditingTodoId: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
 export const TodoItem: React.FC<TodoItemProps> = ({
@@ -68,7 +65,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => handleToggleTodo(id)}
+          onChange={() => handleToggleTodo(todo)}
         />
       </label>
 

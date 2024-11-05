@@ -18,12 +18,12 @@ interface TodoListProps {
   editingTitle: string;
   isEditing: boolean;
   setEditingTitle: (title: string) => void;
-  handleUpdateTodo: (todoId: number, event: React.FormEvent) => void; // ожидаем, что handleUpdateTodo принимает id и event
+  handleUpdateTodo: (todoId: number, event: React.FormEvent) => void;
   editingTodoId: number | null;
   isDeleting: boolean;
-  isTogglingTodo: boolean;
   loadingIds: number[];
-  setEditingTodoId: (id: number | null) => void; // ожидаем функцию, которая обновляет editingTodoId
+  setEditingTodoId: React.Dispatch<React.SetStateAction<number | null>>;
+  setIsDeleting: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const TodoList: React.FC<TodoListProps> = ({
